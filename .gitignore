@@ -1,3 +1,5 @@
 .DS_Store
 *.local
 *.swp
+# Local Pi runtime state
+.atl/
