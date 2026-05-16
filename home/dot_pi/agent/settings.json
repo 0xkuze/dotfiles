@@ -1,0 +1,22 @@
+{
+  "defaultProvider": "zai",
+  "defaultModel": "glm-5.1",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:caveman-pi",
+    "npm:pi-web-access"
+  ],
+  "terminal": {
+    "imageWidthCells": 60,
+    "showTerminalProgress": true,
+    "clearOnShrink": false
+  },
+  "editorPaddingX": 2,
+  "collapseChangelog": true,
+  "quietStartup": false,
+  "enableInstallTelemetry": false,
+  "treeFilterMode": "default",
+  "warnings": {
+    "anthropicExtraUsage": false
+  }
+}

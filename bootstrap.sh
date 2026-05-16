@@ -56,7 +56,14 @@ log "Installing language runtimes via mise…"
 mise install
 ok "Languages installed (node, python, go, rust, java 17 + 11)."
 
-# 7. Hints ──────────────────────────────────────────────────────────
+# 7. Pi packages ───────────────────────────────────────────────────
+if command -v pi >/dev/null 2>&1; then
+  log "Installing pi packages…"
+  pi install npm:caveman-pi npm:pi-web-access 2>/dev/null || true
+  ok "Pi packages installed."
+fi
+
+# 8. Hints ──────────────────────────────────────────────────────────
 if [[ "${SHELL:-}" != *"zsh"* ]]; then
   warn "Login shell isn't zsh. Run: chsh -s /bin/zsh"
 fi

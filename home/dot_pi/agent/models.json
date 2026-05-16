@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "anthropic": {
+      "baseUrl": "http://localhost:8317",
+      "api": "anthropic-messages",
+      "apiKey": "dummy-not-used",
+      "models": [
+        {
+          "id": "claude-opus-4-7",
+          "name": "Claude Opus 4.7 (VibeProxy)",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "cost": { "input": 5.0, "output": 25.0, "cacheRead": 0.5, "cacheWrite": 6.25 },
+          "contextWindow": 1000000,
+          "maxTokens": 128000
+        }
+      ]
+    }
+  }
+}

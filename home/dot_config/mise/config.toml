@@ -15,3 +15,4 @@ java   = ["temurin-17", "temurin-11"]   # first entry is the global default.
                                         # OpenJDK upstream, which only ships patches for 6
                                         # months after GA. Temurin keeps publishing LTS
                                         # updates — so you always get current security fixes.
+pi     = "latest"                      # AI coding agent — https://pi.dev
