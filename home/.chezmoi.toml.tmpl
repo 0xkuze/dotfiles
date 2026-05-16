@@ -1,0 +1,7 @@
+{{- /* Rendered on `chezmoi init`. Values land in ~/.config/chezmoi/chezmoi.toml */ -}}
+{{- $name  := promptStringOnce . "name"  "Full name"  -}}
+{{- $email := promptStringOnce . "email" "Git email" -}}
+
+[data]
+    name  = {{ $name  | quote }}
+    email = {{ $email | quote }}

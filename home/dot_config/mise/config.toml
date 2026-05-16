@@ -1,0 +1,17 @@
+# ~/.config/mise/config.toml — global language runtimes managed by mise.
+# Reference: https://mise.jdx.dev/configuration.html
+#
+# After editing this file, run:    mise install
+# To upgrade everything later:     mise upgrade
+
+[tools]
+node   = "latest"
+python = "latest"
+go     = "latest"
+rust   = "latest"
+java   = ["temurin-17", "temurin-11"]   # first entry is the global default.
+                                        # Temurin (Eclipse) is used instead of bare "11"/"17"
+                                        # because mise's short-version alias resolves to
+                                        # OpenJDK upstream, which only ships patches for 6
+                                        # months after GA. Temurin keeps publishing LTS
+                                        # updates — so you always get current security fixes.

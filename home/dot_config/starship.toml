@@ -1,0 +1,24 @@
+# Starship prompt — https://starship.rs/config/
+
+add_newline = true
+
+format = """
+$directory$git_branch$git_status
+$character """
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol   = "[❯](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo  = true
+style             = "bold cyan"
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+symbol = ""
+style  = "bold purple"
+
+[git_status]
+style = "yellow"

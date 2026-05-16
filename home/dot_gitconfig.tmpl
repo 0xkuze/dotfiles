@@ -1,0 +1,32 @@
+[user]
+    name  = {{ .name }}
+    email = {{ .email }}
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor       = nvim
+    excludesfile = ~/.config/git/ignore
+
+[color]
+    ui = auto
+
+[pull]
+    rebase = true
+
+[push]
+    default         = current
+    autoSetupRemote = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[diff]
+    colorMoved = default
+
+[alias]
+    s  = status
+    co = checkout
+    cm = commit -m
+    lg = log --oneline --graph --decorate --all

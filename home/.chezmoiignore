@@ -1,0 +1,6 @@
+# Patterns here are NOT applied to $HOME.
+# One glob per line, relative to the source dir (this folder).
+#
+# Examples:
+#   README.md
+#   dot_config/private-thing/**
