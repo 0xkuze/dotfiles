@@ -18,6 +18,7 @@ brew "lazygit"      # git TUI
 brew "neovim"       # editor
 brew "tmux"         # terminal multiplexer
 brew "mise"         # runtime version manager (node, python, go, ...)
+brew "mole"          # Mac deep clean + optimize
 
 # ── Apps: terminal & editors ──────────────────────────────────────
 cask "ghostty"          # terminal emulator
