@@ -29,8 +29,13 @@ mise use -g node@latest bun@latest pnpm@latest go@latest
 # Python >= 3.11 must be what `python3` resolves to (the quality-gate tools need it)
 mise use -g python@latest
 
+# Put the mise runtimes on PATH in every new shell, then open a new terminal
+grep -q 'mise activate zsh' ~/.zshrc 2>/dev/null || echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+
 gh auth login
 ```
+
+Before going on, in a new shell: `python3 --version` must print 3.11 or newer and `node --version` must work.
 
 Git settings the workflow relies on (`~/.gitconfig`):
 
@@ -66,8 +71,8 @@ The full shell setup (zshrc, starship, Ghostty, Brewfile) is in the same repo an
 The owner keeps one global instructions file and points every agent at it.
 
 1. Copy `home/.chezmoitemplates/agents-manual.md` from the repo to `~/.claude/CLAUDE.md`.
-2. Replace the template line `My name is {{ .name | splitList " " | first }}.` with `My name is <first name>.`.
-3. Link it for Codex: `ln -sf ~/.claude/CLAUDE.md ~/.codex/AGENTS.md`.
+2. In the first paragraph, replace only the expression `{{ .name | splitList " " | first }}` with the human's first name. Keep the rest of that line: it holds the language, English-code and no-emoji rules.
+3. Link it for Codex: `ln -s ~/.claude/CLAUDE.md ~/.codex/AGENTS.md` (if `~/.codex/AGENTS.md` already exists, show it to the human and move it aside first).
 4. Read the file with the human and adapt three things:
    - The language line (the owner writes in Spanish; code and PRs stay in English).
    - The "MacBook Pro / Mac mini" lines: with one Mac, change them to "runs on my Mac" and drop the "both Macs" parts.
@@ -79,11 +84,12 @@ With chezmoi instead: `chezmoi init --apply --source ~/Documents/dotfiles` rende
 
 ## 4. Skills
 
-Skills live in `~/.claude/skills/<name>/SKILL.md`. Codex reads the same folders through symlinks (step 4.6).
+Skills live in `~/.claude/skills/<name>/SKILL.md`. Codex reads the same folders through symlinks (step 4.4).
 
 ### 4.1 Own and modified skills (copy from this repo)
 
 ```sh
+mkdir -p ~/.claude/skills
 cp -R ~/Documents/dotfiles/agents/claude/skills/* ~/.claude/skills/
 grep -rl '/Users/cristian' ~/.claude/skills | xargs sed -i '' "s#/Users/cristian#$HOME#g"
 chmod +x ~/.claude/skills/babysit-pr/scripts/pr-wait
@@ -109,15 +115,23 @@ git clone https://github.com/t3dotgg/tstack /tmp/tstack
 cp -R /tmp/tstack/skills/{leaving-pr-comments,modernize,takeover} ~/.claude/skills/
 
 # untangle-codebase — https://github.com/caldoai/skills
-npx skills add caldoai/skills --skill untangle-codebase -g -a claude-code
+npx skills add caldoai/skills --skill untangle-codebase -g -a claude-code -y
 
 # Vue / Nuxt / Vitest — https://github.com/onmax/nuxt-skills
 for skill in nuxt vue vitest; do
-  npx skills add onmax/nuxt-skills --skill "$skill" -g -a claude-code
+  npx skills add onmax/nuxt-skills --skill "$skill" -g -a claude-code -y
 done
 ```
 
-Cloudflare skills — <https://github.com/cloudflare/skills>. Install all of them except `artifacts` and `flagship`: agents-sdk, basin, cf-cli, cloudflare, cloudflare-app-bootstrap, cloudflare-email-service, cloudflare-one, cloudflare-one-migrations, durable-objects, frameworks-on-cloudflare, gateway-workers, k2, nextjs-on-cloudflare, sandbox-migrate-to-next, sandbox-next, sandbox-stable, turnstile-spin, web-perf, workers-best-practices, workers-development, workers-profiling, wrangler. Either `npx skills add cloudflare/skills -g -a claude-code` and delete the two, or the plugin (`/plugin marketplace add cloudflare/skills` in Claude Code, `codex plugin marketplace add cloudflare/skills` in Codex). Skip them if the human doesn't use Cloudflare.
+Cloudflare skills — <https://github.com/cloudflare/skills> (skip them if the human doesn't use Cloudflare). All of them except `artifacts` and `flagship`:
+
+```sh
+for skill in agents-sdk basin cf-cli cloudflare cloudflare-app-bootstrap cloudflare-email-service cloudflare-one cloudflare-one-migrations durable-objects frameworks-on-cloudflare gateway-workers k2 nextjs-on-cloudflare sandbox-migrate-to-next sandbox-next sandbox-stable turnstile-spin web-perf workers-best-practices workers-development workers-profiling wrangler; do
+  npx skills add cloudflare/skills --skill "$skill" -g -a claude-code -y
+done
+```
+
+Alternative: the Cloudflare plugin (`claude plugin marketplace add cloudflare/skills`, `codex plugin marketplace add cloudflare/skills`), which also adds Cloudflare's MCP server.
 
 Reverse engineering (optional) — <https://github.com/morluto/rea>: `npx rea-agents setup` registers the `rea` MCP server and installs the `reverse-engineer-anything` skill.
 
@@ -163,7 +177,7 @@ git clone https://github.com/0xkuze/dryer   ~/Documents/tools/dryer     # duplic
 git clone https://github.com/0xkuze/mutator ~/Documents/tools/mutator   # mutation testing
 ```
 
-Each tool creates its own `.venv` on first run (needs `python3` >= 3.11). Check: `~/Documents/tools/dryer/dryer --help`, and the same for `crapper` and `mutator`. Upstream: <https://github.com/unclebob/crapper>, <https://github.com/unclebob/dryer>, <https://github.com/unclebob/mutator>.
+Keep the three folders side by side: `mutator` imports `crapper` from the sibling folder, and the upstream `crapper` lacks what this `mutator` needs. Each tool creates its own `.venv` on first run (needs `python3` >= 3.11). Check each with `--help` (see the checklist). Upstream: <https://github.com/unclebob/crapper>, <https://github.com/unclebob/dryer>, <https://github.com/unclebob/mutator>.
 
 ## 7. Plugins
 
@@ -179,7 +193,7 @@ codex plugin marketplace add DietrichGebert/ponytail
 codex plugin add ponytail@ponytail
 ```
 
-Plugin options used in Claude Code: `ledger: false`, `sendNames: false` (see settings below).
+Plugin options used in Claude Code: `ledger: false`, `sendNames: false` (see settings below). In Codex, approve ponytail's hooks the first time Codex asks; they don't run until trusted.
 
 ## 8. Configuration files
 
@@ -214,6 +228,7 @@ Merge these keys; skip any key the installed version rejects.
   "workflowKeywordTriggerEnabled": false,
   "autoCompactEnabled": true,
   "autoContinueAtUsageLimit": true,
+  "switchModelsOnFlag": false,
   "fileCheckpointingEnabled": true,
   "feedbackDrafts": "notify",
   "theme": "auto"
@@ -233,6 +248,7 @@ claude mcp add --scope user chrome-devtools -- npx -y chrome-devtools-mcp@latest
   --executablePath /Applications/Helium.app/Contents/MacOS/Helium --isolated
 
 # Neon Postgres (only if the human uses Neon). The key lives in the Keychain, never in a file.
+# The helper prefers $NEON_API_KEY when set (over SSH the Keychain is locked).
 cp ~/Documents/dotfiles/agents/claude/neon-headers.sh ~/.claude/neon-headers.sh && chmod 700 ~/.claude/neon-headers.sh
 security add-generic-password -a "$USER" -s NEON_API_KEY -w   # prompts for the key
 claude mcp add-json --scope user Neon "{\"type\":\"http\",\"url\":\"https://mcp.neon.tech/mcp\",\"headersHelper\":\"$HOME/.claude/neon-headers.sh\"}"
@@ -252,6 +268,7 @@ personality = "pragmatic"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 web_search = "live"
+# service_tier = "priority"   # the owner uses it; it costs more, ask the human
 
 [agents]
 default_subagent_model = "<cheaper model>"
@@ -260,6 +277,7 @@ max_concurrent_threads_per_session = 2
 
 [features]
 memories = false
+chronicle = false
 
 [memories]
 generate_memories = false
@@ -279,7 +297,7 @@ T3 Code is a desktop app that runs Claude Code and Codex threads side by side, e
 Way of working:
 
 - One thread per task, in a **new worktree** (default thread mode). Branches are prefixed with the GitHub username and follow Conventional Commits; PRs merge with squash.
-- Default model: Claude (Opus, high effort). Codex is used as a second opinion and for review loops (`sol-loop`).
+- Default model: Claude Opus at effort `xhigh`. Codex is used as a second opinion and for review loops (`sol-loop`).
 - Frontend changes are checked in **T3's browser preview** before shipping.
 - Long waits (builds, test runs) use T3's `t3_background_wait` inside the turn. PRs are watched with `watch_pull_request` (T3 wakes the agent when CI or reviews change); the `babysit-pr` skill uses it. `ship` links each PR to its thread with `link_pull_request`.
 - Trigger words typed in a thread: "full send" (finish and merge unattended), "full stop" (finish, stop before merge), "takeover", "modernize", "babysit-pr", "sol loop".
@@ -355,7 +373,7 @@ Optional: a second Claude account in T3 — add a provider instance `{"driver": 
 The owner runs heavy agent work on a Mac mini and uses the laptop as a client. Only set this up if the human asks.
 
 - Same macOS account name on both Macs, so absolute paths match.
-- [Tailscale](https://tailscale.com) for the network; `ssh mini` as an SSH host alias. T3 on the laptop adds the mini as an SSH environment.
+- [Tailscale](https://tailscale.com) for the network; `ssh mini` as an SSH host alias. T3 on the laptop adds the mini as an SSH environment (T3 setting `"linkedEnvironmentsEnabled": true`).
 - [Syncthing](https://syncthing.net) (`brew install syncthing && brew services start syncthing`) syncs `~/Documents`, `~/.claude`, `~/.codex`, `~/.t3` and `~/.config`. Each folder needs a `.stignore` that excludes per-machine state: login tokens (`.credentials.json`, `.claude.json*`, `auth.json`), caches, SQLite databases, `history.jsonl`, sessions, telemetry, `node_modules` and build output. In `~/.t3` sync only `userdata/settings.json`, `client-settings.json`, `desktop-settings.json`, `keybindings.json` and `themes`; syncing T3's identity makes both Macs claim the same environment.
 - Rules: never use the same checkout on both Macs at once (separate worktrees are fine); `git config --global gc.packRefs false` on both; don't sync `.git/FETCH_HEAD` or `refs/remotes`.
 - Restart Syncthing daily (a LaunchAgent with `brew services restart syncthing`): on macOS its file watcher grows without limit under worktree churn.
@@ -366,11 +384,11 @@ The owner runs heavy agent work on a Mac mini and uses the laptop as a client. O
 Run and report each result:
 
 - [ ] `claude --version`, `codex --version`, `t3 --version`
-- [ ] `~/.claude/CLAUDE.md` exists, has the human's name; `~/.codex/AGENTS.md` points to it
+- [ ] `~/.claude/CLAUDE.md` exists, has the human's name; `~/.codex/AGENTS.md` links to it (with chezmoi it is a rendered copy with the same text)
 - [ ] `ls ~/.claude/skills` lists the skills from section 4; `ls -l ~/.codex/skills` shows the symlinks
 - [ ] `grep -r '/Users/cristian' ~/.claude/skills ~/.claude/agents` prints nothing
 - [ ] `ls ~/.claude/agents` lists Explore, general-purpose, implementer, reviewer
-- [ ] `~/Documents/tools/{dryer/dryer,crapper/crapper,mutator/mutator} --help` all print help
+- [ ] `for tool in dryer crapper mutator; do ~/Documents/tools/$tool/$tool --help >/dev/null && echo "$tool ok"; done` prints three lines
 - [ ] `claude mcp list` shows the servers from 8.2 as connected
 - [ ] `claude plugin list` shows ponytail enabled; `codex plugin list` too
 - [ ] T3 Code opens, shows Claude (and Codex) as providers, and a new thread starts in a worktree
