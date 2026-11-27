@@ -8,6 +8,18 @@ Packages managed with [Homebrew](https://brew.sh) via a `Brewfile`.
 
 ---
 
+## AI coding agents
+
+[`agents/SETUP.md`](agents/SETUP.md) replicates the Claude Code, Codex and T3 Code setup:
+global instructions, skills, subagents, plugins, MCP servers and quality-gate tools.
+Hand that file to your own agent and ask it to follow it.
+
+The shared agent instructions live in `home/.chezmoitemplates/agents-manual.md` and
+render to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.pi/AGENTS.md` and
+`~/.config/opencode/AGENTS.md`.
+
+---
+
 ## Quick start (fresh Mac)
 
 ```sh
